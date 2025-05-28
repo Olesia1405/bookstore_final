@@ -1,0 +1,12 @@
+{% extend 'base.html' %}
+
+<h2>Жанр: {{ genre.name }}</h2>
+<ul>
+  {% for book in books %}
+    <li>
+      <a href="{{ url_for('books.get_book_detail', book_id=book.id) }}">
+        {{ book.title }} — {{ book.author }}
+      </a>
+    </li>
+  {% endfor %}
+</ul>

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Каталог книг{% endblock %}
+{% block content %}
+  <h2>Каталог книг</h2>
+  <div class="row">
+    {% for book in books %}
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          {% if book.cover %}<img src="/{{ book.cover }}" class="card-img-top" alt="{{ book.title }}">{% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ book.title }}</h5>
+            <p class="card-text">{{ book.author }}</p>
+            <p>{{ book.price }} ₽</p>
+            <a href="{{ url_for('books.book_detail', book_id=book.id) }}" class="btn btn-outline-primary">Подробнее</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

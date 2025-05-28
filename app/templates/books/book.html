@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}{{ book.title }}{% endblock %}
+{% block content %}
+  <div class="row">
+    <div class="col-md-4">
+      {% if book.cover %}<img src="/{{ book.cover }}" class="img-fluid">{% endif %}
+    </div>
+    <div class="col-md-8">
+      <h2>{{ book.title }}</h2>
+      <p><strong>Автор:</strong> {{ book.author }}</p>
+      <p><strong>Жанр:</strong> {{ book.genre }}</p>
+      <p><strong>Цена:</strong> {{ book.price }} ₽</p>
+      <p>{{ book.description }}</p>
+      <form method="POST" action="{{ url_for('cart.add_to_cart', book_id=book.id) }}">
+        <button type="submit" class="btn btn-primary">Добавить в корзину</button>
+      </form>
+    </div>
+  </div>
+{% endblock %}
