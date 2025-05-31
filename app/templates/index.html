@@ -1,26 +1,110 @@
-{% extends 'base.html' %}
-{% block title %}Оформление заказа{% endblock %}
-{% block content %}
-  <h2>Оформление заказа</h2>
-  <p>Спасибо за ваш заказ! Он будет обработан в ближайшее время.</p>
-{% endblock %}
+{% extends "base.html" %}
 
-{# ============================ #}
-{#   orders/history.html      #}
-{# ============================ #}
-{% extends 'base.html' %}
-{% block title %}История заказов{% endblock %}
+{% block title %}Главная - Книжный магазин{% endblock %}
+
 {% block content %}
-  <h2>Ваши заказы</h2>
-  {% if orders %}
-    <ul class="list-group">
-      {% for order in orders %}
-        <li class="list-group-item">
-          Заказ #{{ order.id }} — {{ order.total }} ₽ — {{ order.date_created.strftime('%d.%m.%Y') }}
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>У вас нет заказов.</p>
-  {% endif %}
+<div class="container mt-4">
+    <!-- Поисковая строка -->
+    <div class="row mb-5">
+        <div class="col-md-8 mx-auto">
+            <form action="{{ url_for('books.search') }}" method="GET">
+                <div class="input-group">
+                    <input type="text"
+                           class="form-control form-control-lg"
+                           name="q"
+                           placeholder="Поиск по книгам..."
+                           aria-label="Поиск по книгам"
+                           required>
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-search"></i> Найти
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ТОП-3 книги недели -->
+    <section class="mb-5">
+        <h2 class="mb-4 text-center">ТОП-3 книги недели</h2>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for book in top_books %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="position-relative">
+                        <img src="{{ book.cover or url_for('static', filename='images/default_book.jpg') }}"
+                             class="card-img-top"
+                             alt="{{ book.title }}"
+                             style="height: 300px; object-fit: contain;">
+                        {% if loop.index <= 3 %}
+                        <span class="position-absolute top-0 start-0 bg-danger text-white px-2 py-1 rounded-end">
+                            #{{ loop.index }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ book.title }}</h5>
+                        <p class="card-text text-muted">{{ book.author }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-success fw-bold">{{ book.price }} ₽</span>
+                            <span class="text-warning">
+                                {{ "%.1f"|format(book.rating) }} ★
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white">
+                        <a href="{{ url_for('books.get_books', book_id=book.id) }}"
+                           class="btn btn-sm btn-outline-primary w-100">
+                            Подробнее
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">Нет книг для отображения</div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Разделы каталога (жанры) -->
+    <section class="mb-5">
+        <h2 class="mb-4 text-center">Жанры книг</h2>
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
+            {% for genre in genres %}
+            <div class="col">
+                <a href="{{ url_for('books.get_book_by_genre', genre_id=genre.id) }}"
+                   class="text-decoration-none">
+                    <div class="card h-100 shadow-sm text-center hover-effect">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ genre.name }}</h5>
+                            <p class="card-text text-muted small">
+                                {{ genre.books|length }} книг
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">Жанры не найдены</div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+
+<style>
+    .hover-effect {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .hover-effect:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    .card-img-top {
+        background-color: #f8f9fa;
+        padding: 15px;
+    }
+</style>
 {% endblock %}

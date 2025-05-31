@@ -1,19 +1,62 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
 {% block title %}{{ book.title }}{% endblock %}
+
 {% block content %}
-  <div class="row">
-    <div class="col-md-4">
-      {% if book.cover %}<img src="/{{ book.cover }}" class="img-fluid">{% endif %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <img src="{{ book.cover or url_for('static', filename='images/default_book.jpg') }}"
+                 class="img-fluid rounded shadow"
+                 alt="{{ book.title }}">
+        </div>
+        <div class="col-md-8">
+            <h1>{{ book.title }}</h1>
+            <h4 class="text-muted">{{ book.author }}</h4>
+
+            <div class="my-4">
+                <span class="badge bg-primary fs-6">Рейтинг: {{ book.rating|round(1) }}/5.0</span>
+                {% for genre in book.genres %}
+                    <span class="badge bg-secondary ms-2">{{ genre.name }}</span>
+                {% endfor %}
+            </div>
+
+            <h3 class="text-success my-3">{{ book.price }} ₽</h3>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Описание</h5>
+                    <p class="card-text">{{ book.description or 'Описание отсутствует' }}</p>
+                </div>
+            </div>
+
+            <form action="{{ url_for('cart.add_to_cart', book_id=book.id) }}" method="POST" class="d-inline">
+                 <button type="submit" class="btn btn-primary btn-lg">Добавить в корзину</button>
+            </form>
+            <a href="{{ url_for('books.get_book_catalog') }}" class="btn btn-outline-secondary btn-lg">Назад к каталогу</a>
+        </div>
     </div>
-    <div class="col-md-8">
-      <h2>{{ book.title }}</h2>
-      <p><strong>Автор:</strong> {{ book.author }}</p>
-      <p><strong>Жанр:</strong> {{ book.genre }}</p>
-      <p><strong>Цена:</strong> {{ book.price }} ₽</p>
-      <p>{{ book.description }}</p>
-      <form method="POST" action="{{ url_for('cart.add_to_cart', book_id=book.id) }}">
-        <button type="submit" class="btn btn-primary">Добавить в корзину</button>
-      </form>
+
+    <!-- Отзывы -->
+    <div class="mt-5">
+        <h3>Отзывы</h3>
+        <div class="list-group">
+            {% for review in book.reviews %}
+            <div class="list-group-item mb-3">
+                <div class="d-flex justify-content-between">
+                    <h5>{{ review.user.username }}</h5>
+                    <div class="text-warning">
+                        {% for i in range(review.rating) %}★{% endfor %}
+                        {% for i in range(5 - review.rating) %}☆{% endfor %}
+                    </div>
+                </div>
+                <small class="text-muted">{{ review.created_at.strftime('%d.%m.%Y') }}</small>
+                <p class="mt-2">{{ review.text }}</p>
+            </div>
+            {% else %}
+            <div class="alert alert-info">Пока нет отзывов</div>
+            {% endfor %}
+        </div>
     </div>
-  </div>
+</div>
 {% endblock %}

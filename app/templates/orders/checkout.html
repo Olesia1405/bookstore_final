@@ -1,10 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-</body>
-</html>
+{% block title %}Оформление заказа{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- ... остальная часть шаблона ... -->
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+            {{ form.delivery_method.label(class="form-label") }}
+            {{ form.delivery_method(class="form-select") }}
+            {% if form.delivery_method.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.delivery_method.errors[0] }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3" id="address_container">
+            {{ form.address.label(class="form-label") }}
+            {{ form.address(class="form-control") }}
+            {% if form.address.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.address.errors[0] }}
+                </div>
+            {% endif %}
+            <small class="text-muted">Обязательно для доставки курьером</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Подтвердить заказ</button>
+    </form>
+
+    <!-- JavaScript для управления полем адреса -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deliveryMethod = document.getElementById('delivery_method');
+            const addressContainer = document.getElementById('address_container');
+            const addressField = document.getElementById('address_field');
+
+            // Функция для переключения видимости
+            function toggleAddressField() {
+                if (deliveryMethod.value === 'door') {
+                    addressContainer.style.display = 'block';
+                    addressField.setAttribute('required', 'required');
+                } else {
+                    addressContainer.style.display = 'none';
+                    addressField.removeAttribute('required');
+                }
+            }
+
+            // Инициализация при загрузке
+            toggleAddressField();
+
+            // Обработчик изменения способа доставки
+            deliveryMethod.addEventListener('change', toggleAddressField);
+        });
+    </script>
+</div>
+{% endblock %}

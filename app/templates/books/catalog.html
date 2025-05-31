@@ -1,20 +1,56 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
 {% block title %}Каталог книг{% endblock %}
+
 {% block content %}
-  <h2>Каталог книг</h2>
-  <div class="row">
-    {% for book in books %}
-      <div class="col-md-4 mb-4">
-        <div class="card">
-          {% if book.cover %}<img src="/{{ book.cover }}" class="card-img-top" alt="{{ book.title }}">{% endif %}
-          <div class="card-body">
-            <h5 class="card-title">{{ book.title }}</h5>
-            <p class="card-text">{{ book.author }}</p>
-            <p>{{ book.price }} ₽</p>
-            <a href="{{ url_for('books.book_detail', book_id=book.id) }}" class="btn btn-outline-primary">Подробнее</a>
-          </div>
+<div class="container mt-4">
+    <h1 class="mb-4">Каталог книг</h1>
+
+    <!-- Жанры -->
+    <div class="card mb-5">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Жанры</h5>
         </div>
-      </div>
-    {% endfor %}
-  </div>
+        <div class="card-body">
+            <div class="d-flex flex-wrap gap-2">
+                {% for genre in genres %}
+                    <a href="{{ url_for('books.get_book_by_genre', genre_id=genre.id) }}"
+                       class="btn btn-outline-primary">
+                        {{ genre.name }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Популярные книги -->
+    <h3 class="mb-3">Популярные книги</h3>
+    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for book in top_books %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <img src="{{ book.cover }}"
+                     class="card-img-top"
+                     alt="{{ book.title }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ book.title }}</h5>
+                    <p class="card-text text-muted">{{ book.author }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-success fw-bold">{{ book.price }} ₽</span>
+                        <span class="text-warning">
+                            {{ "%.1f"|format(book.rating) }} ★
+                        </span>
+                    </div>
+                </div>
+                <div class="card-footer bg-white">
+                    <a href="{{ url_for('books.get_books', book_id=book.id) }}"
+                       class="btn btn-sm btn-outline-primary w-100">
+                        Подробнее
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

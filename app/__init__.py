@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_migrate import Migrate
 from app.extensions import db, login_manager
 from app.models import Book, BookGenre, CartItem, OrderItem, Order, Review, User
 from app.utils import initialize_books
@@ -7,6 +8,7 @@ from app.routes.auth import bp as auth_bp
 from app.routes.main import bp as main_bp
 from app.routes.cart import cart_bp
 from app.routes.orders import orders_bp
+from app.routes.books import books_bp
 
 
 
@@ -17,6 +19,7 @@ def create_app():
 
 
     db.init_app(app)
+    migrate = Migrate(app, db)
 
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
@@ -26,6 +29,7 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(cart_bp)
     app.register_blueprint(orders_bp)
+    app.register_blueprint(books_bp)
 
     with app.app_context():
         db.create_all()

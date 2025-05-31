@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Заказ #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Заказ #{{ order.id }}</h1>
+        <span class="badge bg-{{ 'success' if order.status == 'completed' else 
+                              'warning' if order.status == 'processing' else 
+                              'danger' }} fs-6">
+            {{ order.status }}
+        </span>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Состав заказа</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Книга</th>
+                                <th>Цена</th>
+                                <th>Кол-во</th>
+                                <th>Сумма</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items %}
+                            <tr>
+                                <td>
+                                    <img src="{{ item.book.cover }}" 
+                                         alt="{{ item.book.title }}" 
+                                         width="50" class="me-2">
+                                    {{ item.book.title }}
+                                </td>
+                                <td>{{ item.price_at_order }} ₽</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.price_at_order * item.quantity }} ₽</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3">Итого:</th>
+                                <th>{{ order.total_price }} ₽</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Информация о доставке</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Способ доставки:</strong><br>
+                    {{ 'Доставка курьером' if order.delivery_type == 'door' else 'Самовывоз' }}</p>
+                    
+                    {% if order.delivery_type == 'door' %}
+                    <p><strong>Адрес:</strong><br>
+                    {{ order.address }}</p>
+                    {% endif %}
+                    
+                    <p><strong>Дата заказа:</strong><br>
+                    {{ order.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <a href="{{ url_for('orders.order_history') }}" class="btn btn-outline-secondary">
+        ← Назад к истории заказов
+    </a>
+</div>
+{% endblock %}

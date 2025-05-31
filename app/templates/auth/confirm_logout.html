@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Подтверждение выхода{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <h2 class="mb-4">Выход из системы</h2>
+                    <p class="lead">Вы действительно хотите выйти из своего аккаунта?</p>
+
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+                        <a href="{{ url_for('auth.logout', confirm='true') }}"
+                           class="btn btn-danger btn-lg">
+                            Да, выйти
+                        </a>
+                        <a href="{{ url_for('main.index') }}"
+                           class="btn btn-outline-secondary btn-lg">
+                            Отмена
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

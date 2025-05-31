@@ -1,11 +1,10 @@
-from flask import Blueprint, render_template, flash, redirect, url_for
-from flask_login import login_user, logout_user, current_user
+from flask import Blueprint, render_template, flash, redirect, url_for, request
+from flask_login import login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from ..models import User
 from ..extensions import db
 from ..forms import LoginForm, RegistrationForm
-import random
-import string
+
 
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
@@ -13,9 +12,6 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
-
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -32,19 +28,14 @@ def login():
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
-
     form = RegistrationForm()
     if form.validate_on_submit():
-        confirmation_code = ''.join(random.choices(string.digits, k=6))
 
         user = User(
-            name=form.username.data,
+            username=form.username.data,
             email=form.email.data,
             phone=form.phone.data,
             psw_hash=generate_password_hash(form.password.data),
-            confirmation_code=confirmation_code
         )
 
         db.session.add(user)
@@ -57,7 +48,15 @@ def register():
 
 
 @bp.route('/logout')
+@login_required
 def logout():
-    logout_user()
-    flash('Вы вышли из аккаунта', 'info')
-    return redirect(url_for('auth.login'))
+    if request.args.get('confirm') == 'true':
+        logout_user()
+        flash('Вы успешно вышли из системы', 'success')
+        return redirect(url_for('main.index'))
+    return redirect(url_for('auth.confirm_logout'))
+
+@bp.route('/confirm-logout')
+@login_required
+def confirm_logout():
+    return render_template('auth/confirm_logout.html')

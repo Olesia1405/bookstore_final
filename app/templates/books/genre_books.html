@@ -1,12 +1,48 @@
-{% extend 'base.html' %}
+{% extends "base.html" %}
 
-<h2>Жанр: {{ genre.name }}</h2>
-<ul>
-  {% for book in books %}
-    <li>
-      <a href="{{ url_for('books.get_book_detail', book_id=book.id) }}">
-        {{ book.title }} — {{ book.author }}
-      </a>
-    </li>
-  {% endfor %}
-</ul>
+{% block title %}Книги жанра {{ genre.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('books.get_book_catalog') }}">Каталог</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ genre.name }}</li>
+        </ol>
+    </nav>
+
+    <h1 class="mb-4">Книги жанра: {{ genre.name }}</h1>
+
+    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for book in books %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <img src="{{ book.cover or url_for('static', filename='images/default_book.jpg') }}"
+                     class="card-img-top"
+                     alt="{{ book.title }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ book.title }}</h5>
+                    <p class="card-text text-muted">{{ book.author }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-success fw-bold">{{ book.price }} ₽</span>
+                        <span class="text-warning">
+                            {{ "%.1f"|format(book.rating) }} ★
+                        </span>
+                    </div>
+                </div>
+                <div class="card-footer bg-white">
+                    <a href="{{ url_for('books.get_books', book_id=book.id) }}"
+                       class="btn btn-sm btn-outline-primary w-100">
+                        Подробнее
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">В этом жанре пока нет книг</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

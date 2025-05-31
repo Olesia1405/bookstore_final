@@ -3,18 +3,20 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from .extensions import db
 from datetime import datetime, timezone
+from sqlalchemy.orm import validates
 
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
     phone = db.Column(db.String(20))
     psw_hash = db.Column(db.String(256), nullable=False)
 
     orders = db.relationship("Order", back_populates="user", cascade="all, delete-orphan")
+    cart_items = db.relationship("CartItem", back_populates="user")
 
 
 class BookGenre(db.Model):
@@ -84,7 +86,7 @@ class CartItem(db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=False)
     quantity = db.Column(db.Integer, default=1)
 
-    user = db.relationship('User', backref=db.backref('cart_items', lazy=True))
+    user = db.relationship("User", back_populates="cart_items")
     book = db.relationship('Book', backref=db.backref('in_carts', lazy=True))
 
 
@@ -98,8 +100,14 @@ class Order(db.Model):
     address = db.Column(db.Text)
     delivery_type = db.Column(db.String(20))
 
-    user = db.relationship('User', backref=db.backref('orders', lazy=True))
+    user = db.relationship('User', back_populates='orders')
     items = db.relationship('OrderItem', backref='order', lazy=True)
+
+    @validates('address')
+    def validate_address(self, key, address):
+        if self.delivery_type == 'door' and not address:
+            raise ValueError("Адрес обязателен для доставки")
+        return address
 
 
 class OrderItem(db.Model):
